@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Cobra King</title>
+    <style>
+        .body {
+            background: url('../SnakeGame/bg.jpg');
+
+            background-size: 100vw 100vh;
+            min-height: 97vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        #board {
+            height: 90vh;
+            width: 48vw;
+            background: linear-gradient(pink, chocolate);
+            border: 2px solid black;
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-template-rows: repeat(18, 1fr);
+        }
+
+        .food {
+            background-color: red;
+        }
+
+        .head {
+            background-color: purple;
+            border-radius: 15px;
+        }
+
+        .parts {
+            background-color: silver;
+        }
+
+        .controls button {
+            border: 2px solid black;
+            background-color: black;
+            color: white;
+            padding: 9px;
+            border-radius: 19px;
+            margin: 10px 15px;
+        }
+
+        .controls {
+            border: 2px solid turquoise;
+            text-align: center;
+            background-color: #c9c2c2;
+            border-radius: 10px;
+            width: 200px;
+        }
+
+        .controls {
+            display: none;
+        }
+
+
+        @media screen and (max-width:420px) {
+            #board {
+                height: 50vh;
+            }
+
+            .body {
+                align-items: center;
+                flex-direction: column;
+                justify-content: space-evenly;
+            }
+
+            .controls {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body">
+        <div id="scores"></div>
+        <div id="board">
+
+        </div>
+        <div class="controls">
+            <div class="key1"><button onclick="up()">UP</button></div>
+            <div class="key2"><button onclick="Left()">LEFT</button><button onclick="Right()">RIGHT</button></div>
+            <div class="key3"><button onclick="down()">DOWN</button></div>
+        </div>
+    </div>
+    <script>
+        var snakeArr = [{
+            x: 13, y: 15
+        }]
+       
+
+
+        inputDir = { x: 0, y: 0 }
+        let board = document.getElementById('board');
+        let lastPaintTime = 0
+        const speed = 5;
+        food = { x: 5, y: 9 }
+        function main(ctime) {
+            window.requestAnimationFrame(main)
+
+            if ((ctime - lastPaintTime) / 1000 < 1 / speed) {
+                return
+            }
+            lastPaintTime = ctime;
+            gameofEngine();
+        }
+        function isCollide(snake) {
+            for (let i = 1; i < snakeArr.length; i++) {
+                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
+                    return true;
+                }
+            }
+            if (snake[0].x >= 18 || snake[0].x <= 0 || snake[0].y >= 18 || snake[0].y <= 0) {
+                return true;
+            }
+
+            return false;
+        }
+
+        function gameofEngine() {
+            if (isCollide(snakeArr)) {
+                inputDir = { x: 0, y: 0 }
+                alert("Snake has been crashed");
+                snakeArr = [{ x: 17, y: 16 }]
+            }
+
+            if (snakeArr[0].x === food.x && snakeArr[0].y === food.y) {
+                snakeArr.unshift({ x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y })
+                let a = 2;
+                let b = 16;
+               
+                
+                food = { x: Math.round(a + (b - a) * Math.random()), y: Math.round(a + (b - a) * Math.random()) }
+
+            }
+            for (let i = snakeArr.length - 2; i >= 0; i--) {
+                snakeArr[i + 1] = { ...snakeArr[i] }
+
+            }
+            snakeArr[0].x += inputDir.x
+            snakeArr[0].y += inputDir.y
+            // update the food and snake
+            board.innerHTML = " "
+            snakeArr.forEach((e, index) => {
+                snakeElement = document.createElement('div');
+                if (index === 0) {
+                    snakeElement.classList.add('head');
+
+                }
+                else {
+
+                    snakeElement.classList.add('parts');
+                }
+
+                snakeElement.style.gridRowStart = e.y;
+                snakeElement.style.gridColumnStart = e.x;
+                board.appendChild(snakeElement)
+            });
+
+            // render the food and snake
+            foodElement = document.createElement('div');
+            foodElement.classList.add('food');
+            foodElement.style.gridRowStart = food.y;
+            foodElement.style.gridColumnStart = food.x;
+            board.appendChild(foodElement)
+        }
+        window.requestAnimationFrame(main);
+        window.addEventListener('keydown', e => {
+            inputDir = [{ x: 5, y: 9 }];
+            switch (e.key) {
+                case 'ArrowUp':
+                    console.log('ArrowUp')
+                    inputDir.x = 0;
+                    inputDir.y = -1;
+                    break;
+                case 'ArrowDown':
+                    console.log('ArrowDown')
+                    inputDir.x = 0;
+                    inputDir.y = 1;
+                    break;
+                case 'ArrowLeft':
+                    console.log('ArrowLeft')
+                    inputDir.x = -1;
+                    inputDir.y = 0;
+                    break;
+                case 'ArrowRight':
+                    console.log('ArrowRight')
+                    inputDir.x = 1;
+                    inputDir.y = 0;
+                    break;
+
+                default:
+                    break;
+            }
+        })
+        function up() {
+            inputDir.x = 0;
+            inputDir.y = -1;
+        }
+        function down() {
+            inputDir.x = 0;
+            inputDir.y = 1;
+        }
+        function Left() {
+            inputDir.x = -1;
+            inputDir.y = 0;
+        }
+        function Right() {
+            inputDir.x = 1;
+            inputDir.y = 0;
+        }
+    </script>
+</body>
+
+</html>
